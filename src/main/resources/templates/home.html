@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>Welcome to the VW Advert Aggregator :)</title>
+</head>
+<body>
+
+<h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+
+<div th:with="remoteUser=${#httpServletRequest.remoteUser}">
+    <p>
+        The name of the first person is <span th:text="${remoteUser}">Julius Caesar</span>.
+    </p>
+
+    <!--<p th:text="'id: ' + ${username.getUsername()}" />-->
+
+    <h1>Welcome to the VW Advert Aggregator :)</h1>
+
+    <p><a th:href="@{/phrase(id=${remoteUser})}">try</a></p>
+
+    <p>Click <a th:href="@{/phrase/${remoteUser}}">here</a> to see change your search phrases.</p>
+
+    <p>Click <a th:href="@{/advert}">here</a> to see the latest adverts which match your search phrases.</p>
+</div>
+</body>
+</html>
