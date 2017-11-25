@@ -24,9 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes={Application.class, MvcConfig.class, WebSecurityConfig.class})
 public class AccountMockMvcTests {
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
     private MockMvc mvc;
 
     @MockBean
@@ -42,6 +39,6 @@ public class AccountMockMvcTests {
 
     @Test
     public void testLoadRegistrationPage() throws Exception {
-        this.mockMvc.perform(get("/register")).andExpect(status().isOk());
+        this.mvc.perform(get("/register")).andExpect(status().isOk());
     }
 }
