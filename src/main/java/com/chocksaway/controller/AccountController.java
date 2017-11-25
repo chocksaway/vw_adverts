@@ -27,7 +27,6 @@ public class AccountController {
 
     @GetMapping("/register")
     public String greetingForm(Model model) {
-        model.addAttribute("register", new Account());
         return "register";
     }
 
