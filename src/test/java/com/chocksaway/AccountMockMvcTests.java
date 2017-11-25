@@ -10,11 +10,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,5 +42,19 @@ public class AccountMockMvcTests {
     @Test
     public void testLoadRegistrationPage() throws Exception {
         this.mvc.perform(get("/register")).andExpect(status().isOk());
+    }
+
+    // todo need to get this working with CSRF tokens
+
+    @Test
+    public void testPostToRegister() throws Exception {
+        String content = mvc
+                .perform(post("/register")
+                        //.header("Authorization", authorization)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("username", "xxx")
+                        .param("password", "xxx"))
+                        .andExpect(status().isOk())
+                        .andReturn().getResponse().getContentAsString();
     }
 }

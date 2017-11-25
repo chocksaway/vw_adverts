@@ -15,7 +15,9 @@ public class Application {
         return new CommandLineRunner() {
             @Override
             public void run(String... arg0) throws Exception {
-                accountRepository.save(new Account("username", "password"));
+                if (accountRepository.findByUsername("username") == null) {
+                    accountRepository.save(new Account("username", "password"));
+                }
             }
         };
     }

@@ -6,10 +6,14 @@
 </head>
 <body>
 
+<div th:if="${registerError}">
+    Invalid username and password, or details already exist
+</div>
 <form th:action="@{/register}" method="post">
-    <div><label> Email address : <input type="text" name="username"/> </label></div>
-    <div><label> Password: <input type="password" name="password"/> </label></div>
+    <div><label> Email address : <input type="text" name="username" value="enter a valid email"/> </label></div>
+    <div><label> Password: <input type="password" name="password" value=""/> </label></div>
     <div><input type="submit" value="Register"/></div>
+    <div><input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/></div>
 </form>
 </body>
 </html>

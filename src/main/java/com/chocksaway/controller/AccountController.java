@@ -31,13 +31,14 @@ public class AccountController {
     }
 
     @PostMapping("/register")
-    public String greetingSubmit(@ModelAttribute Account account) {
+    public String greetingSubmit(@ModelAttribute Account account, Model model) {
         Account existingAccount = accountRepository.findByUsername(account.getUsername());
         if (existingAccount == null) {
             accountRepository.save(account);
             return "result";
         }
 
+        model.addAttribute("registerError", true);
         return "register";
     }
 
