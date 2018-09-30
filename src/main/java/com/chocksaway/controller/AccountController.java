@@ -1,6 +1,9 @@
 package com.chocksaway.controller;
 
 import com.chocksaway.entity.Account;
+import com.chocksaway.exception.UserAlreadyExistsException;
+import com.chocksaway.exception.UserNotFoundException;
+import com.chocksaway.exception.UserUnauthorisedException;
 import com.chocksaway.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -9,12 +12,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Optional;
 
 /**
  * Author milesd on 17/12/2016.
@@ -23,22 +26,42 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Controller
 public class AccountController {
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountRepository repository;
 
-    @GetMapping("/register")
-    public String greetingForm(Model model) {
-        return "register";
+    @PostMapping("/authenticate")
+    public ModelAndView authenticate(@RequestBody Account accountIn) {
+        Optional<Account> user = Optional.ofNullable(repository.findByUsername(accountIn.getUsername()));
+
+        if (!user.isPresent()) {
+            throw new UserNotFoundException(accountIn.getUsername());
+        }
+
+        if (user.get().getPassword().equals(accountIn.getPassword())) {
+            ModelAndView mav = new ModelAndView("authenticate");
+            mav.addObject("account", repository.findByUsername(accountIn.getUsername()));
+
+            return mav;
+
+        }
+
+        throw new UserUnauthorisedException(accountIn.getUsername());
     }
 
+
     @PostMapping("/register")
-    public String greetingSubmit(@ModelAttribute Account account, Model model) {
-        Account existingAccount = accountRepository.findByUsername(account.getUsername());
-        if (existingAccount == null) {
-            accountRepository.save(account);
+    public String greetingSubmit(@RequestBody Account accountIn) {
+        Optional<Account> account = Optional.ofNullable(repository.findByUsername(accountIn.getUsername()));
+
+        if (account == null) {
+            repository.save(accountIn);
             return "result";
         }
 
-        model.addAttribute("registerError", true);
+        throw new UserAlreadyExistsException(accountIn.getUsername());
+    }
+
+    @GetMapping("/register")
+    public String greetingForm(Model model) {
         return "register";
     }
 
@@ -54,7 +77,8 @@ public class AccountController {
         return "home";
     }
 
-    @GetMapping("/phrase")
+
+    @GetMapping("/phrase/{id}")
     public String getPhrase(@RequestParam("id") String id) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

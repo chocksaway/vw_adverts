@@ -1,11 +1,14 @@
 package com.chocksaway.entity;
 
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "account")
 public class Account {
-
     @Id
     private String id;
+    @Indexed
     private String username;
     private String password;
 
@@ -19,9 +22,6 @@ public class Account {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;
@@ -37,5 +37,13 @@ public class Account {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Account[id=%s, username='%s', password='%s']",
+                id, username, password);
     }
 }

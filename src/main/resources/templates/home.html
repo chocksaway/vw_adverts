@@ -18,9 +18,16 @@
 
     <p><a th:href="@{/phrase(id=${remoteUser})}">try</a></p>
 
-    <p>Click <a th:href="@{/phrase/${remoteUser}}">here</a> to see change your search phrases.</p>
+    <p>Click <a th:href="@{/phrase/id/username}">here</a> to see or change your search phrases.</p>
+
+    <p>Click <a th:href="@{/phrase/username}">here</a> to see or change your search phrases.</p>
 
     <p>Click <a th:href="@{/advert}">here</a> to see the latest adverts which match your search phrases.</p>
+
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out"/>
+    </form>
+
 </div>
 </body>
 </html>

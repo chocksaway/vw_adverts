@@ -1,60 +1,82 @@
 package com.chocksaway;
 
-
-import com.chocksaway.config.MvcConfig;
-import com.chocksaway.config.WebSecurityConfig;
-import com.chocksaway.controller.AccountController;
-import com.chocksaway.repository.AccountRepository;
+import com.chocksaway.entity.Account;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @RunWith(SpringRunner.class)
-@WebMvcTest(AccountController.class)
-@ContextConfiguration(classes={Application.class, MvcConfig.class, WebSecurityConfig.class})
+@SpringBootTest
+@AutoConfigureMockMvc
 public class AccountMockMvcTests {
+
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
-    @MockBean
-    private AccountRepository accountRepository;
+    @Autowired
+    protected MongoTemplate mongoTemplate;
 
+    protected ObjectMapper mapper;
 
-    @Test
-    public void contact() throws Exception {
-        mvc.perform(get("/register"))
-                .andDo(print());
+    @Before
+    public void setUp() {
+        mongoTemplate.dropCollection(Account.class);
+        mapper = new ObjectMapper();
     }
 
+//    @After
+//    public void after() {
+//        mongoTemplate.dropCollection(Account.class);
+//    }
 
-    @Test
-    public void testLoadRegistrationPage() throws Exception {
-        this.mvc.perform(get("/register")).andExpect(status().isOk());
-    }
-
-    // todo need to get this working with CSRF tokens
 
     @Test
     public void testPostToRegister() throws Exception {
-        String content = mvc
+        String content = mockMvc
                 .perform(post("/register")
                         //.header("Authorization", authorization)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("username", "xxx")
-                        .param("password", "xxx"))
-                        .andExpect(status().isOk())
-                        .andReturn().getResponse().getContentAsString();
+                        .param("username", "username")
+                        .param("password", "password"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+    }
+
+
+    @Test
+
+    public void testAddJusticeLeagueMember() throws Exception {
+        mapper = new ObjectMapper();
+
+        Account account = new Account("miles", "password");
+
+        mongoTemplate.save(account);
+
+        String jsonContent = mapper.writeValueAsString(account);
+
+        String response = mockMvc
+
+                .perform(MockMvcRequestBuilders.post("/authenticate").accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON).content(jsonContent))
+
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful())
+                .andReturn().getResponse().getContentAsString();
+
+        Assert.assertTrue(response.contains(account.getUsername()));
     }
 }
